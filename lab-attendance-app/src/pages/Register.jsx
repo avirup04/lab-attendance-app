@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import InputField from '../components/InputField.jsx';
+import { API_BASE_URL } from '../config/apiConfig';
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -15,10 +16,34 @@ export default function Register() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Register form submitted:', formData);
-    // Placeholder: add real registration logic later
+    try {
+      const response = await fetch(`${API_BASE_URL}/register.php`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const result = await response.json();
+
+      if (result.status === "success") {
+        alert(result.message);
+        // ADD THIS LINE: Clear the form fields after success
+        setFormData({
+          name: '',
+          email: '',
+          mobile: '',
+          password: ''
+        }); 
+      } else {
+        alert("Error: " + result.message);
+      }
+    } catch (error) {
+      console.error("Error", error);
+      alert("Failed to connect to server");
+    }
   };
 
   return (
